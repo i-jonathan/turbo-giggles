@@ -1,38 +1,48 @@
+import os
+
 import mysql.connector
 from mysql.connector import Error
 from mysql.connector.connection import MySQLConnection
 
 
 class Datastore:
-    def __init__(self, db_user, db_pass, db_name, db_host):
-        self.db_name = db_name
-        self.db_user = db_user
-        self.db_pass = db_pass
-        self.db_host = db_host
-        self.connection: MySQLConnection | None = None
+    connection: MySQLConnection | None = None
+    db_name = os.getenv('db_name')
+    db_user = os.getenv('db_user')
+    db_pass = os.getenv('db_pass')
+    db_host = os.getenv('db_host')
 
-    def establish_connection(self):
+    def __init__(self):
+        self.db_name = os.getenv('db_name')
+        self.db_user = os.getenv('db_user')
+        self.db_pass = os.getenv('db_pass')
+        self.db_host = os.getenv('db_host')
+        self.establish_connection()
+
+    @classmethod
+    def establish_connection(cls):
         try:
-            self.connection = mysql.connector.connect(
-                host=self.db_host,
-                user=self.db_user,
-                passwd=self.db_pass,
-                database=self.db_name
+            cls.connection = mysql.connector.connect(
+                host=cls.db_host,
+                user=cls.db_user,
+                passwd=cls.db_pass,
+                database=cls.db_name
             )
 
-            if self.connection.is_connected():
-                print("Connected to database: ", self.connection.cursor().fetchone())
+            if cls.connection.is_connected():
+                print("Connected to database: ", cls.connection.cursor().fetchone())
         except Error as err:
             print(f'Error while connecting to sql database: {err}')
 
-    def fetch_connection(self) -> MySQLConnection | None:
+    @classmethod
+    def fetch_connection(cls) -> MySQLConnection | None:
         # check if connection exists. If it does, return said connection. Else Try connecting then returning.
         # Else. Return none
-        if self.connection.is_connected():
-            return self.connection
+        if cls.connection is not None:
+            return cls.connection
 
-        self.establish_connection()
-        if self.connection.is_connected():
-            return self.connection
+        cls.establish_connection()
+        if cls.connection is not None:
+            return cls.connection
 
         return None
