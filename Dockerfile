@@ -1,11 +1,10 @@
 FROM python:3.11-alpine
 
-RUN pip install --upgrade pip
-RUN pip install fastapi
-RUN pip install "uvicorn[standard]"
-RUN pip install mysql-connector-python
-
 WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY . .
 
