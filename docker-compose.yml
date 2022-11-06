@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  sql:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    volumes:
+      - ./scripts/:/docker-entrypoint-initdb.d
+      - koolf-data:/var/lib/mysql
+
+  web:
+    build: .
+    image: koolf:latest
+    env_file:
+      - .env
+    ports:
+      - "8090:8090"
+    depends_on:
+      - sql
+
+volumes:
+  koolf-data:
