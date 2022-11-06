@@ -15,6 +15,8 @@ class Clients(Datastore):
         try:
             cursor.execute(query)
             result = cursor.fetchall()
+            cursor.close()
+            conn.close()
             print("Select Clients Successful")
             clients = []
             for client in result:
@@ -27,9 +29,24 @@ class Clients(Datastore):
         except Error as e:
             print(f'Error fetching clients: {e}')
 
-    def fetch_client_by_id(self, pk: int) -> Client | None:
-        # todo some sql to fetch clients @h4ckitt
-        pass
+    @classmethod
+    def fetch_client_by_id(cls, pk: int) -> Client | None:
+        conn = cls.fetch_connection()
+        query = 'SELECT client_id, client_name, client_phone_number, client_email, date_joined FROM client WHERE client_id = %s;'
+        param = (pk, )
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, param)
+            result = cursor.fetchone()
+            print("Select Client Successful")
+            if result is None:
+                return None
+
+            client = Client(client_id=result[0], client_name=result[1],
+                            client_phone_number=result[2], client_email=result[3], date_joined=result[4])
+            return client
+        except Error as e:
+            print(f'Error fetching client with id {pk}: {e}')
 
     def search_by_clients_name(self, query: str) -> [Client]:
         # todo some sql to fetch clients @h4ckitt
