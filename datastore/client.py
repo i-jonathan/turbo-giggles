@@ -47,12 +47,32 @@ class Clients(Datastore):
             return client
         except Error as e:
             print(f'Error fetching client with id {pk}: {e}')
+    
+    @classmethod
+    def search_by_clients_name(cls, name: str) -> [Client]:
+        conn = cls.fetch_connection()
+        query = 'SELECT client_id, client_name, client_phone_number, client_email, date_joined FROM client WHERE name LIKE %%s%%'
+        param = (name, )
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query,param)
+            result = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            clients = []
+            for client in result:
+                temp_client = Client(client_id=client[0], client_name=client[1], client_phone_number=client[2], client_email=client[3], date_joined=client[4])
+                clients.append(temp_client)
+            return clients
 
-    def search_by_clients_name(self, query: str) -> [Client]:
-        # todo some sql to fetch clients @h4ckitt
-        pass
+        except Error as e:
+            print(f'Error fetching clients with name: {name}')
 
-    def insert_client(self, client: Client) -> int:
+    @classmethod
+    def insert_client(cls, client: Client) -> int:
+        conn = cls.fetch_connection()
+        query = "INSERT INTO client (client_name, client_phone_number, client_email, date_joined) VALUES(%s, %s, %s, %s)"
+        param = (client.name)
         # todo some sql to fetch clients @h4ckitt
         pass
 
