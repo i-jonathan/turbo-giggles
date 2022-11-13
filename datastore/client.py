@@ -51,7 +51,7 @@ class Clients(Datastore):
     @classmethod
     def search_by_clients_name(cls, name: str) -> [Client]:
         conn = cls.fetch_connection()
-        query = 'SELECT client_id, client_name, client_phone_number, client_email, date_joined FROM client WHERE name LIKE %%s%%'
+        query = 'SELECT client_id, client_name, client_phone_number, client_email, date_joined FROM client WHERE name LIKE %%s%'
         param = (name, )
         cursor = conn.cursor()
         try:
@@ -66,16 +66,30 @@ class Clients(Datastore):
             return clients
 
         except Error as e:
-            print(f'Error fetching clients with name: {name}')
+            print(f'Error fetching clients with name: {client.client_name}: {e}')
 
     @classmethod
     def insert_client(cls, client: Client) -> int:
         conn = cls.fetch_connection()
         query = "INSERT INTO client (client_name, client_phone_number, client_email, date_joined) VALUES(%s, %s, %s, %s)"
-        param = (client.name)
-        # todo some sql to fetch clients @h4ckitt
-        pass
+        param = (client.client_name, client.client_phone_number, client.client_email, client.date_joined)
+        cursor = conn.cursor()
 
-    def update_client(self, client: Client) -> bool:
-        # todo some sql to fetch clients @h4ckitt
-        pass
+        try:
+            cursor.execute(query, param)
+        except Error as e:
+            printf(f'Error inserting client data')
+
+
+    @classmethod
+    def update_client(cls, client: Client) -> bool:
+        conn = cls.fetch_connection()
+        query = "UPDATE client SET client_name=%s, client_phone_number=%s, client_email=%s"
+        param = (client.client_name, client.client_phone_number, client.client_email)
+        cursor = conn.cursor()
+
+        try:
+            curosr.execute(query, param)
+            return true
+        except Error as e:
+            printf(f'Error updating client with name {client.client_name}: {e}')
