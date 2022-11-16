@@ -71,20 +71,22 @@ class Clients(Datastore):
     @classmethod
     def insert_client(cls, client: Client) -> int:
         conn = cls.fetch_connection()
-        query = "INSERT INTO client (client_name, client_phone_number, client_email, date_joined) VALUES(%s, %s, %s, %s)"
+        query = "INSERT INTO client (client_name, client_phone_number, client_email) VALUES(%s, %s, %s)"
         param = (client.client_name, client.client_phone_number, client.client_email, client.date_joined)
         cursor = conn.cursor()
 
         try:
             cursor.execute(query, param)
+            return cursor.lastrowid
         except Error as e:
             printf(f'Error inserting client data')
+            return -1
 
 
     @classmethod
     def update_client(cls, client: Client) -> bool:
         conn = cls.fetch_connection()
-        query = "UPDATE client SET client_name=%s, client_phone_number=%s, client_email=%s"
+        query = "UPDATE clients SET client_name=%s, client_phone_number=%s, client_email=%s"
         param = (client.client_name, client.client_phone_number, client.client_email)
         cursor = conn.cursor()
 
@@ -93,3 +95,17 @@ class Clients(Datastore):
             return true
         except Error as e:
             printf(f'Error updating client with name {client.client_name}: {e}')
+
+    @classmethod
+    def delete_client(cls, id: int) -> bool:
+        conn = cls.fetch_connection()
+        query = "DELETE FROM clients WHERE client_id = %s"
+        cursor = conn.cursor()
+        params = (id, )
+        try:
+            cursor.execute(query)
+            return true
+        except Error as e:
+            print(f'An error occurred while deleting client: {e}')
+            return false
+
